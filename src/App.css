@@ -2,3 +2,8 @@
   max-width: 1024px;
   margin: auto;
 }
+.message {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
