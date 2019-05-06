@@ -2,8 +2,71 @@
   max-width: 1024px;
   margin: auto;
 }
+.scrollable-div {
+  margin-top: 30px;
+  background-color: white;
+  height: 80vh;
+  overflow-x: hidden;
+}
 .message {
+  background-color: #e6ebef;
+  border-radius: 5px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-content: center;
+  margin: 5px 0;
+  padding: 8px;
+}
+.msg-text {
+  flex: 8;
+  border-right: gray 1px solid;
+}
+.msg-status {
+  flex: 1;
+  text-align: center;
+  align-self: center;
+  padding: 3px;
+  font-size: 12px;
+  font-style: italic;
+  color: grey;
+}
+.form {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 8px;
+}
+.message-input {
+  flex: 6;
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  outline: none;
+  padding: 8px;
+  margin-right: 3px;
+  box-sizing: border-box;
+  border: none;
+}
+.select {
+  flex: 1;
+  outline: none;
+  font-size: 14px;
+  background-color: #ec6a33;
+  border: none;
+  color: white;
+  text-transform: uppercase;
+}
+.button {
+  flex: 1;
+  background-color: #4183d7;
+  margin-left: 3px;
+  color: white;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+}
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
