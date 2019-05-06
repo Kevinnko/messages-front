@@ -10,19 +10,20 @@ class App extends React.Component {
   };
 
   async componentDidMount() {
-    var element = document.getElementsByClassName("scrollable-div")[0];
-    console.log("in componentDidMount", element);
-
     // loading messages from api
     const response = await axios.get("http://localhost:3001/get-messages");
     this.setState({
       messages: response.data
     });
   }
-  componentDidUpdate() {
-    var element = document.getElementsByClassName("scrollable-div")[0];
-    console.log("in componentDidUpdate", element);
-    element.scrollIntoView(false);
+
+  componentDidUpdate(prevProps, prevState) {
+    const { messages } = this.state;
+    // There is a new message in the state, scroll to bottom of list
+    if (messages.length > prevState.messages.length) {
+      const objDiv = document.getElementById("scrollable-div");
+      objDiv.scrollTop = objDiv.scrollHeight;
+    }
   }
 
   handleChange = event => {
@@ -53,7 +54,9 @@ class App extends React.Component {
       <div className="container">
         {/* S'il y a des messages, on les affiche, sinon on affiche "pas de message" */}
         {messages.length === 0 ? (
-          <div>Pas de messages</div>
+          <div style={{ padding: 10 }}>
+            Pas de messages : lancer le serveur.
+          </div>
         ) : (
           <MessagesList messages={messages} />
         )}
@@ -91,22 +94,20 @@ class App extends React.Component {
     );
   }
 }
-// created stateless component
+
 export const MessagesList = props => {
   return (
-    <div className="scrollable-div">
+    <div id="scrollable-div">
       {props.messages.map((message, index) => {
         return (
-          <>
-            <div key={index} className="message">
-              <div className="msg-text">{message.message}</div>
-              {message.public === "true" ? (
-                <div className="msg-status">Public</div>
-              ) : (
-                <div className="msg-status">Privé</div>
-              )}
-            </div>
-          </>
+          <div key={index} className="message">
+            <div className="msg-text">{message.message}</div>
+            {message.public === "true" ? (
+              <div className="msg-status">Public</div>
+            ) : (
+              <div className="msg-status">Privé</div>
+            )}
+          </div>
         );
       })}
     </div>

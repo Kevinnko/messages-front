@@ -4,7 +4,7 @@ import App from "./App";
 import MessagesList from "./App";
 import axios from "axios";
 import { create } from "react-test-renderer";
-import { configure, mount, shallow } from "enzyme";
+import { configure, mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 configure({ adapter: new Adapter() });
 
@@ -56,7 +56,5 @@ describe("MessageList", () => {
 
     const component = mount(<MessagesList messages={messages} />);
     const value = component.find("div.message");
-    console.log("component ", component);
-    console.log("value ", value);
   });
 });
