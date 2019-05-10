@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import MessagesList from "./components/MessagesList";
 import "./App.css";
 
 class App extends React.Component {
@@ -10,16 +11,24 @@ class App extends React.Component {
   };
 
   async componentDidMount() {
-    // loading messages from api
-    const response = await axios.get("http://localhost:3001/get-messages");
-    this.setState({
-      messages: response.data
-    });
-  }
+    try {
+      // loading messages from api
+      const response = await axios.get("http://localhost:3001/get-messages");
+      if (this.unmounted) return;
 
+      this.setState({
+        messages: response.data
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  componentWillUnmount() {
+    this.unmounted = true;
+  }
   componentDidUpdate(prevProps, prevState) {
     const { messages } = this.state;
-    // There is a new message in the state, scroll to bottom of list
+    // S'il y a un nouveau message dans la liste, scroller automatiquement
     if (messages.length > prevState.messages.length) {
       const objDiv = document.getElementById("scrollable-div");
       objDiv.scrollTop = objDiv.scrollHeight;
@@ -35,16 +44,20 @@ class App extends React.Component {
 
   handleSubmit = async event => {
     event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:3001/post-message", {
+        message: this.state.message,
+        public: this.state.status
+      });
 
-    const response = await axios.post("http://localhost:3001/post-message", {
-      message: this.state.message,
-      public: this.state.status
-    });
-
-    this.setState({
-      messages: response.data,
-      message: ""
-    });
+      this.setState({
+        messages: response.data,
+        message: ""
+      });
+    } catch (error) {
+      console.log(error);
+      alert("Le serveur ne répond pas");
+    }
   };
 
   render() {
@@ -52,10 +65,9 @@ class App extends React.Component {
 
     return (
       <div className="container">
-        {/* S'il y a des messages, on les affiche, sinon on affiche "pas de message" */}
         {messages.length === 0 ? (
           <div style={{ padding: 10 }}>
-            Pas de messages : lancer le serveur.
+            <p>Pas de messages : lancer le serveur.</p>
           </div>
         ) : (
           <MessagesList messages={messages} />
@@ -94,24 +106,5 @@ class App extends React.Component {
     );
   }
 }
-
-export const MessagesList = props => {
-  return (
-    <div id="scrollable-div">
-      {props.messages.map((message, index) => {
-        return (
-          <div key={index} className="message">
-            <div className="msg-text">{message.message}</div>
-            {message.public === "true" ? (
-              <div className="msg-status">Public</div>
-            ) : (
-              <div className="msg-status">Privé</div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 export default App;
