@@ -1,12 +1,12 @@
 import React from "react";
 
-const MessagesList = props => {
+const MessagesList = React.forwardRef((props, ref) => {
   // console.log(props);
   return (
     <div id="scrollable-div">
       {props.messages.map((message, index) => {
         return (
-          <div key={index} className="message">
+          <div key={index} className="message" ref={ref}>
             <div className="msg-text">{message.message}</div>
             {message.public === "true" ? (
               <div className="msg-status">Public</div>
@@ -18,5 +18,5 @@ const MessagesList = props => {
       })}
     </div>
   );
-};
+});
 export default MessagesList;

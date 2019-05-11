@@ -10,6 +10,8 @@ class App extends React.Component {
     status: "true"
   };
 
+  ref = React.createRef();
+
   async componentDidMount() {
     try {
       // loading messages from api
@@ -28,11 +30,9 @@ class App extends React.Component {
   }
   componentDidUpdate(prevProps, prevState) {
     const { messages } = this.state;
-    // S'il y a un nouveau message dans la liste, scroller automatiquement
+    // S'il y a un nouveau message, scroller vers celui-ci
     if (messages.length > prevState.messages.length) {
-      const objDiv = document.getElementById("scrollable-div");
-      // console.log("objDiv : ", objDiv);
-      objDiv.scrollTop = objDiv.scrollHeight;
+      this.ref.current && this.ref.current.scrollIntoView();
     }
   }
 
@@ -54,14 +54,10 @@ class App extends React.Component {
 
       const newMessagesArray = [...messages];
       newMessagesArray.push({ message: message, public: status });
-      console.log("newMessagesArray ", newMessagesArray);
-      this.setState(
-        {
-          messages: newMessagesArray,
-          message: ""
-        },
-        () => console.log("this.state.messages ", this.state.messages)
-      );
+      this.setState({
+        messages: newMessagesArray,
+        message: ""
+      });
     } catch (error) {
       console.log("handleSubmit error : ", error);
       alert("Le serveur ne répond pas");
@@ -78,7 +74,7 @@ class App extends React.Component {
             <p>Pas de messages : lancer le serveur.</p>
           </div>
         ) : (
-          <MessagesList messages={messages} />
+          <MessagesList messages={messages} ref={this.ref} />
         )}
         <form
           className="form"

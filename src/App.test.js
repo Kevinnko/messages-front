@@ -3,22 +3,21 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import axios from "axios";
 import renderer, { create } from "react-test-renderer";
-import { configure, mount, shallow } from "enzyme";
+import { configure, shallow } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 configure({ adapter: new Adapter() });
 
 jest.mock("axios");
 
-it("renders without crashing", () => {
-  const div = document.createElement("div");
-  ReactDOM.render(<App />, div);
-  ReactDOM.unmountComponentAtNode(div);
-});
+describe("<App />", () => {
+  it("renders without crashing", () => {
+    const div = document.createElement("div");
+    ReactDOM.render(<App />, div);
+    ReactDOM.unmountComponentAtNode(div);
+  });
 
-describe("<App /> not connected to server", () => {
   it("matches the snapshot", () => {
     const tree = renderer.create(<App />).toJSON();
-    console.log("tree", tree);
     expect(tree).toMatchSnapshot();
   });
 
@@ -37,9 +36,7 @@ describe("<App /> not connected to server", () => {
     expect(textareas.length).toEqual(1);
     expect(selects.length).toEqual(1);
   });
-});
 
-describe("<App /> connected to server", () => {
   describe("when rendered", () => {
     it("should fetch a list of messages", async () => {
       const getSpy = jest.spyOn(axios, "get");
@@ -47,7 +44,6 @@ describe("<App /> connected to server", () => {
       expect(getSpy).toBeCalled();
       const instance = messagesListInstance.getInstance();
       await instance.componentDidMount();
-      // console.log("instance ", instance.state.messages);
     });
   });
 
@@ -59,7 +55,6 @@ describe("<App /> connected to server", () => {
       taskInput.simulate("change", {
         target: { value: message, name: "message" }
       });
-      // console.log("appInstance.state() ==> ", appInstance.state());
       expect(appInstance.state().message).toEqual(message);
     });
   });
@@ -75,11 +70,6 @@ describe("<App /> connected to server", () => {
       });
 
       appInstance.find("form").simulate("submit", { preventDefault() {} });
-
-      // const button = appInstance.find(".button");
-      // expect(button.length).toEqual(1);
-      // button.simulate("submit");
-      // --> Cette simulation ne semble pas déclencher la fonction (idem avec `click`)
 
       expect(postSpy).toBeCalled();
     });
@@ -100,42 +90,19 @@ describe("<App /> connected to server", () => {
       const postPromise = postSpy.mock.results.pop().value;
 
       return postPromise.then(postResponse => {
-        const currentState = appInstance.state();
-        console.log("postResponse ", postResponse.data);
-        console.log("------------------");
-        console.log("currentState: ", currentState);
-        expect(currentState.messages.includes(postResponse.data)).toBe(true);
+        const newMessagesArray = [];
+        newMessagesArray.push(postResponse.data);
+
+        appInstance.setState({ messages: newMessagesArray }, () => {
+          appInstance.update();
+          expect(appInstance.state("messages")).toEqual(newMessagesArray);
+          // console.log(appInstance.state());
+          // console.log(" ======================== ");
+          // console.log(appInstance.debug());
+        });
       });
     });
   });
 });
 
-// describe("<App />", () => {
-//   it("should contain an array of objects with specific keys", async () => {
-//     const response = {
-//       data: [
-//         { message: "Coucou", status: "true" },
-//         { message: "Coucou", status: "false" }
-//       ]
-//     };
-//     expect(Array.isArray(response.data)).toEqual(true);
-//     axios.get.mockResolvedValue(response);
-//     const component = create(<App />);
-//     const instance = component.getInstance();
-//     await instance.componentDidMount();
-
-//     instance.state.messages.forEach(obj => {
-//       expect(typeof obj).toEqual("object");
-
-//       // chaque objet du tableau de messages doit contenir les clés 'message' et 'status
-//       expect(Object.keys(obj).sort()).toEqual(["message", "status"]);
-
-//       // Valider le type des valeurs de chaque clé
-//       expect(typeof obj.message).toEqual("string");
-//       expect(typeof obj.status).toEqual("string");
-//     });
-//   });
-
-//   // tester le conditional public / privé
-//   // tester le onSubmit
-// });
+// TO DO : tester la condition 'public/privé'
