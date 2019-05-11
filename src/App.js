@@ -20,7 +20,7 @@ class App extends React.Component {
         messages: response.data
       });
     } catch (error) {
-      console.log(error);
+      console.log("componentDidMount error : ", error);
     }
   }
   componentWillUnmount() {
@@ -31,6 +31,7 @@ class App extends React.Component {
     // S'il y a un nouveau message dans la liste, scroller automatiquement
     if (messages.length > prevState.messages.length) {
       const objDiv = document.getElementById("scrollable-div");
+      // console.log("objDiv : ", objDiv);
       objDiv.scrollTop = objDiv.scrollHeight;
     }
   }
@@ -44,18 +45,25 @@ class App extends React.Component {
 
   handleSubmit = async event => {
     event.preventDefault();
+    const { message, messages, status } = this.state;
     try {
       const response = await axios.post("http://localhost:3001/post-message", {
-        message: this.state.message,
-        public: this.state.status
+        message: message,
+        public: status
       });
 
-      this.setState({
-        messages: response.data,
-        message: ""
-      });
+      const newMessagesArray = [...messages];
+      newMessagesArray.push({ message: message, public: status });
+      console.log("newMessagesArray ", newMessagesArray);
+      this.setState(
+        {
+          messages: newMessagesArray,
+          message: ""
+        },
+        () => console.log("this.state.messages ", this.state.messages)
+      );
     } catch (error) {
-      console.log(error);
+      console.log("handleSubmit error : ", error);
       alert("Le serveur ne répond pas");
     }
   };

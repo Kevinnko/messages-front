@@ -18,6 +18,7 @@ it("renders without crashing", () => {
 describe("<App /> not connected to server", () => {
   it("matches the snapshot", () => {
     const tree = renderer.create(<App />).toJSON();
+    console.log("tree", tree);
     expect(tree).toMatchSnapshot();
   });
 
@@ -39,20 +40,74 @@ describe("<App /> not connected to server", () => {
 });
 
 describe("<App /> connected to server", () => {
-  // it("should call an API", async () => {
-  //   const response = {
-  //     data: [
-  //       { message: "Coucou", status: "true" },
-  //       { message: "Coucou", status: "false" }
-  //     ]
-  //   };
-  //   expect(Array.isArray(response.data)).toEqual(true);
-  //   axios.get.mockResolvedValue(response);
-  //   const component = create(<App />);
-  //   const instance = component.getInstance();
-  //   await instance.componentDidMount();
-  //   // await instance.componentDidUpdate();
-  // });
+  describe("when rendered", () => {
+    it("should fetch a list of messages", async () => {
+      const getSpy = jest.spyOn(axios, "get");
+      const messagesListInstance = create(<App />);
+      expect(getSpy).toBeCalled();
+      const instance = messagesListInstance.getInstance();
+      await instance.componentDidMount();
+      // console.log("instance ", instance.state.messages);
+    });
+  });
+
+  describe("when the value of its input is changed", () => {
+    it("its state should be changed", () => {
+      const appInstance = shallow(<App />);
+      const message = "bonjour";
+      const taskInput = appInstance.find("textarea");
+      taskInput.simulate("change", {
+        target: { value: message, name: "message" }
+      });
+      // console.log("appInstance.state() ==> ", appInstance.state());
+      expect(appInstance.state().message).toEqual(message);
+    });
+  });
+
+  describe("when the button is clicked with the input filled out", () => {
+    it("a post request should be made", () => {
+      const appInstance = shallow(<App />);
+      const postSpy = jest.spyOn(axios, "post");
+      const message = "bonjour";
+      const taskInput = appInstance.find("textarea");
+      taskInput.simulate("change", {
+        target: { value: message, name: "message" }
+      });
+
+      appInstance.find("form").simulate("submit", { preventDefault() {} });
+
+      // const button = appInstance.find(".button");
+      // expect(button.length).toEqual(1);
+      // button.simulate("submit");
+      // --> Cette simulation ne semble pas déclencher la fonction (idem avec `click`)
+
+      expect(postSpy).toBeCalled();
+    });
+  });
+
+  describe("when the button is clicked with the input filled out", () => {
+    it("the new message should be added to the state of messages", () => {
+      const appInstance = shallow(<App />);
+      const postSpy = jest.spyOn(axios, "post");
+      const message = "bonjour";
+      const taskInput = appInstance.find("textarea");
+      taskInput.simulate("change", {
+        target: { value: message, name: "message" }
+      });
+
+      appInstance.find("form").simulate("submit", { preventDefault() {} });
+
+      const postPromise = postSpy.mock.results.pop().value;
+
+      return postPromise.then(postResponse => {
+        const currentState = appInstance.state();
+        console.log("postResponse ", postResponse.data);
+        console.log("------------------");
+        console.log("currentState: ", currentState);
+        expect(currentState.messages.includes(postResponse.data)).toBe(true);
+      });
+    });
+  });
 });
 
 // describe("<App />", () => {
@@ -83,17 +138,4 @@ describe("<App /> connected to server", () => {
 
 //   // tester le conditional public / privé
 //   // tester le onSubmit
-// });
-
-// // le composant MessageList doit contenir une liste de messages
-// describe("MessageList", () => {
-//   it("should contain divs", () => {
-//     const messages = [
-//       { message: "Coucou", status: "true" },
-//       { message: "Coucou", status: "false" }
-//     ];
-
-//     const component = mount(<MessagesList messages={messages} />);
-//     const value = component.find("div.message");
-//   });
 // });

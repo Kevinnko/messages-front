@@ -1,7 +1,7 @@
 import React from "react";
 
 const MessagesList = props => {
-  console.log(props);
+  // console.log(props);
   return (
     <div id="scrollable-div">
       {props.messages.map((message, index) => {
