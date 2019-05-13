@@ -72,3 +72,10 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Media queries */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 10px;
+  }
+}
